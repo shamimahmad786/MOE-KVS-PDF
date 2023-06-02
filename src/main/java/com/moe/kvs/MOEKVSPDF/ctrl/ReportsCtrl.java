@@ -29,6 +29,7 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.property.UnitValue;
 import com.moe.kvs.MOEKVSPDF.beans.ReportBeans;
+import com.moe.kvs.MOEKVSPDF.certification.util.CertificationGenerateUtil;
 import com.moe.kvs.MOEKVSPDF.resource.Header;
 import com.moe.kvs.MOEKVSPDF.resource.NativeRepository;
 import com.moe.kvs.MOEKVSPDF.resource.PageXofY;
@@ -45,6 +46,8 @@ public class ReportsCtrl {
 	
 	@Autowired
 	NativeRepository nativeRepository;
+	@Autowired
+	CertificationGenerateUtil certificationGenerateUtil;
 	
 	@RequestMapping(value = "/testReport", method = RequestMethod.POST)
 	public ResponseEntity<?> testReport() throws Exception {
@@ -226,48 +229,48 @@ public class ReportsCtrl {
 		return ResponseEntity.ok(qrObj);
 	}
 	
-	@RequestMapping(value = "/sentReport", method = RequestMethod.POST)
-	public ResponseEntity<?> sentReport(@RequestBody String data) throws Exception {
+	@RequestMapping(value = "/sentReport", method = RequestMethod.GET)
+	public ResponseEntity<?> sentReport() throws Exception {
 		 String textContent = "Sapiensplendide noluisse ... mollis verterem alia regione quidam.";
-		         String simplePdf = "E:\\shamimShared\\teacher-report.pdf";
-		         WriterProperties wp = new WriterProperties();
-		         wp.setPdfVersion(PdfVersion.PDF_2_0);
-		         try {
-		        	 String header = "pdfHtml Header and footer example using page-events";
-		        	 PdfWriter writer = new PdfWriter(simplePdf, wp);
-		                 PdfDocument pdfDocument = new PdfDocument(writer);
-		                 Document document = new Document(pdfDocument);
-		                 document.setMargins(100, 100, 72, 36);
-		              	 Header headerHandler = new Header(header);
-			        	 PageXofY footerHandler = new PageXofY(pdfDocument);
-			        	 pdfDocument.addEventHandler(PdfDocumentEvent.START_PAGE,headerHandler);
-			        	 pdfDocument.addEventHandler(PdfDocumentEvent.END_PAGE,footerHandler);
-			        	 
-			        	 Paragraph paragraph1 = new Paragraph("First paragraph Sudipto");
-			        	 paragraph1.setMarginRight(30);
-//			        	 paragraph1.setSpacingAfter(72f);
-			        	 document.add(paragraph1);
-			        	 Paragraph paragraph2 = new Paragraph("Second paragraph");
-			        	 document.add(paragraph2);
-			        	 Table table = new Table(2).useAllAvailableWidth();
+//		         String simplePdf = "E:\\shamimShared\\teacher-report.pdf";
+//		         WriterProperties wp = new WriterProperties();
+//		         wp.setPdfVersion(PdfVersion.PDF_2_0);
+//		         try {
+//		        	 String header = "pdfHtml Header and footer example using page-events";
+//		        	 PdfWriter writer = new PdfWriter(simplePdf, wp);
+//		                 PdfDocument pdfDocument = new PdfDocument(writer);
+//		                 Document document = new Document(pdfDocument);
+//		                 document.setMargins(100, 100, 72, 36);
+//		              	 Header headerHandler = new Header(header);
+//			        	 PageXofY footerHandler = new PageXofY(pdfDocument);
+//			        	 pdfDocument.addEventHandler(PdfDocumentEvent.START_PAGE,headerHandler);
+//			        	 pdfDocument.addEventHandler(PdfDocumentEvent.END_PAGE,footerHandler);
+//			        	 
+//			        	 Paragraph paragraph1 = new Paragraph("First paragraph Sudipto");
+//			        	 paragraph1.setMarginRight(30);
+////			        	 paragraph1.setSpacingAfter(72f);
+//			        	 document.add(paragraph1);
+//			        	 Paragraph paragraph2 = new Paragraph("Second paragraph");
+//			        	 document.add(paragraph2);
+//			        	 Table table = new Table(2).useAllAvailableWidth();
+//
+//			             for (int i = 0; i < 16; i++) {
+//			            	 Cell cell = new Cell();
+//			            	 cell.add("contents go here");
+//			            	 cell.setBorder(Border.NO_BORDER);
+//			                 table.addCell(cell);
+//			             }
+//
+//			             document.add(table);
+//			        	 
+//		             document.add(new Paragraph(textContent));
+//		             footerHandler.writeTotal(pdfDocument);
+//		             pdfDocument.close();
+//		         } catch (FileNotFoundException e) {
+//		                 e.printStackTrace(); 
+//		         }
 
-			             for (int i = 0; i < 16; i++) {
-			            	 Cell cell = new Cell();
-			            	 cell.add("contents go here");
-			            	 cell.setBorder(Border.NO_BORDER);
-			                 table.addCell(cell);
-			             }
-
-			             document.add(table);
-			        	 
-		             document.add(new Paragraph(textContent));
-		             footerHandler.writeTotal(pdfDocument);
-		             pdfDocument.close();
-		         } catch (FileNotFoundException e) {
-		                 e.printStackTrace(); 
-		         }
-
-		return null;
+		return certificationGenerateUtil.downloadCertificate();
 		
 	}
 	
