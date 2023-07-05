@@ -8,7 +8,9 @@ import com.itextpdf.layout.border.Border;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.property.HorizontalAlignment;
 import com.itextpdf.layout.property.TextAlignment;
+import com.itextpdf.layout.property.VerticalAlignment;
 
 public class TeachCertiCommonMethod {
 	
@@ -18,6 +20,16 @@ public class TeachCertiCommonMethod {
 		table.addCell(cell);
 
 	}
+	
+	public static void createHeaderCellLeft(Table table, String content, int colspan, int rowspan, PdfFont f)
+			throws IOException {
+		Cell cell = new Cell(rowspan, colspan).add(new Paragraph(content).setFont(f).setFontSize(11));
+		cell.setHorizontalAlignment(HorizontalAlignment.LEFT);
+		cell.setVerticalAlignment(VerticalAlignment.MIDDLE);
+		table.addCell(cell);
+
+	}
+
 
 	public static void createDataCell(Table table, String content, int colspan, int rowspan, PdfFont f)
 			throws IOException {

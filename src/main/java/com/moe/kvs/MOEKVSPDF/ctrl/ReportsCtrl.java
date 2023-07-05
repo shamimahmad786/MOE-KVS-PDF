@@ -24,6 +24,7 @@ import org.springframework.web.client.RestTemplate;
 //import com.example.MOERADTEACHER.util.QueryResult;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.itextpdf.kernel.events.PdfDocumentEvent;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfVersion;
@@ -35,6 +36,8 @@ import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.property.UnitValue;
+import com.moe.kvs.MOEKVSPDF.beans.ExprienceBean;
+import com.moe.kvs.MOEKVSPDF.beans.MiscelaneousBean;
 import com.moe.kvs.MOEKVSPDF.beans.ReportBeans;
 import com.moe.kvs.MOEKVSPDF.certification.util.CertificationGenerateUtil;
 import com.moe.kvs.MOEKVSPDF.resource.Header;
@@ -270,21 +273,33 @@ public class ReportsCtrl {
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		HttpEntity<String> request = new HttpEntity<String>(layload, headers);
 //			String access_token_url ="https://kvsonlinetransfer.kvs.gov.in/MOE-RAD-TEACHER/api/teacher/getConfirmedTeacherDetails";
-		String access_token_url = "http://localhost:8014/api/teacher/getConfirmedTeacherDetails";
+		String access_token_url = "http://10.25.26.251:8014/api/teacher/getConfirmedTeacherDetails";
 		response = restTemplate.exchange(access_token_url, HttpMethod.POST, request, String.class);
 		try {
 			System.out.println(response.getBody());
 			map = mapper.readValue(response.getBody(), Map.class);
 			dataObj = (Map<String, Map<String, Object>>) map.get("response");
+		
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 		
+   System.out.println("Teacher Details--->"+dataObj.get("schoolDetails"));
 		
-		System.out.println("Teacher Details--->"+dataObj.toString());
+	
+		List<ExprienceBean> expBean = null;
+		MiscelaneousBean miscelaneousBean = null;
+		ObjectMapper mapper1 = new ObjectMapper();
+		expBean = mapper1.readValue(mapper.writeValueAsString(dataObj.get("experience")), new TypeReference<List<ExprienceBean>>(){});
+		miscelaneousBean = mapper1.readValue(mapper.writeValueAsString(dataObj.get("transDetails")), MiscelaneousBean.class);
+		//String str = mapper1.writeValueAsString(dataObj.get("experience"));
+		
+		System.out.println("valui" +miscelaneousBean);
+		System.out.println("Teacher Details--->"+dataObj.get("experience"));
+	
 		
 
-		return certificationGenerateUtil.downloadCertificate(dataObj,expObj);
+		return certificationGenerateUtil.downloadCertificate(dataObj,expBean ,miscelaneousBean);
 
 	}
 
