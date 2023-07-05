@@ -4,6 +4,8 @@ import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -41,7 +43,7 @@ import com.itextpdf.layout.property.VerticalAlignment;
 @Component
 public class CertificationGenerateUtil {
 	
-	public ResponseEntity<?> downloadCertificate()
+	public ResponseEntity<?> downloadCertificate(Map<String,Map<String,Object>> dataObj,Map<String, List<Map<String, Object>>> expObj)
 			throws IOException, java.io.IOException {
 		
 		PdfFont font = PdfFontFactory.createFont(FontConstants.TIMES_ROMAN);
@@ -146,16 +148,16 @@ public class CertificationGenerateUtil {
 		Table mainTable = new Table(UnitValue.createPercentArray(columnWidMainTab));
 		mainTable.setWidth(UnitValue.createPercentValue(100));
 		
-		Table techBasicProfile = fetchBasicProfile(doc, font);
+		Table techBasicProfile = fetchBasicProfile(doc, font,dataObj);
 		mainTable.addCell(techBasicProfile);
-		Table techGeneralInformation = fetchPersonalInformation(doc, font);
+		Table techGeneralInformation = fetchPersonalInformation(doc, font,dataObj);
 		mainTable.addCell(techGeneralInformation);
 
-		Table techSpousDetails = fetchTechSpousDetails(doc, font);
+		Table techSpousDetails = fetchTechSpousDetails(doc, font,dataObj);
 		mainTable.addCell(techSpousDetails);
 		
 
-		Table techWorkExperience = fetchTeachWorkExperience(doc, font);
+		Table techWorkExperience = fetchTeachWorkExperience(doc, font,expObj);
 		mainTable.addCell(techWorkExperience);
 		Table  teachOrderOfStationChange = fetchTeachOrderOfStationChange(doc ,font);
 		mainTable.addCell(teachOrderOfStationChange);
@@ -179,7 +181,7 @@ public class CertificationGenerateUtil {
 		return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_PDF).body(bytes);
 	}
 	
-	public Table fetchBasicProfile(Document doc ,PdfFont f){
+	public Table fetchBasicProfile(Document doc ,PdfFont f,Map<String,Map<String,Object>> data){
 		
 		float[] columnWidths = {1.9f , 1.2f ,1.7f ,1.4f};
 		Table table = new Table(UnitValue.createPercentArray(columnWidths));
@@ -187,41 +189,42 @@ public class CertificationGenerateUtil {
 		
 		TeachCertiCommonMethod.createDataHeaderCellTableCenter(table, "BASIC PROFILE", 4, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "KV / Institution Code", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		List<Map<String,Object>> expObj=(List<Map<String,Object>>)	data.get("experience");
+		TeachCertiCommonMethod.createDataCell(table,  checkNull(expObj.get(0).get("udiseSchCode")) , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Present KV / Institution Name", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  checkNull(expObj.get(0).get("udiseSchoolName"))  , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Employee Code", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  checkNull(data.get("teacherProfile").get("teacherEmployeeCode"))  , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Teacher Id", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  checkNull(data.get("teacherProfile").get("teacherId")) , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Name", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  checkNull(data.get("teacherProfile").get("teacherName")) , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Gender", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  checkNull(data.get("teacherProfile").get("teacherGender")) , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Date of Birth ", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  checkNull(data.get("teacherProfile").get("teacherDob")) , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Email", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  checkNull(data.get("teacherProfile").get("teacherEmail")) , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Mobile Number", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  checkNull(data.get("teacherProfile").get("teacherMobile")) , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Nature of Appointment", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  "Regular" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Marital Status", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  checkNull(data.get("teacherProfile").get("maritalStatus")) , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Present Station Name ", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  checkNull(data.get("teacherProfile").get("workExperiencePositionTypePresentKv")) , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Present Station in Present Post Date", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  checkNull(data.get("teacherProfile").get("workExperiencePositionTypePresentStationStartDate")) , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Present KV in Present Post Date ", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  checkNull(data.get("teacherProfile").get("workExperienceWorkStartDatePresentKv")) , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Present Post Name", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  checkNull(data.get("teacherProfile").get("lastPromotionPositionType")) , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Present Post Date", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  checkNull(data.get("teacherProfile").get("lastPromotionPositionDate")) , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Subject Name", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  checkNull(data.get("teacherProfile").get("workExperienceAppointedForSubject")) , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Staff Type", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  checkNull(data.get("teacherProfile").get("teachingNonteaching")) , 1, 1, f);
 
 		
 		return table;
@@ -229,7 +232,7 @@ public class CertificationGenerateUtil {
 		
 	}
 	
-	public Table fetchPersonalInformation(Document doc ,PdfFont f){
+	public Table fetchPersonalInformation(Document doc ,PdfFont f,Map<String,Map<String,Object>> data){
 		
 		float[] columnWidths = {1.5f , 1.7f ,1.5f ,1.7f};
 		Table table = new Table(UnitValue.createPercentArray(columnWidths));
@@ -237,21 +240,21 @@ public class CertificationGenerateUtil {
 		
 		TeachCertiCommonMethod.createDataHeaderCellTableCenter(table, "PERSONAL INFORMATION", 4, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Correspondence Address", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 3, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  checkNull(data.get("teacherProfile").get("teacherCorrespondenceAddress")) , 3, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Correspondence State", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,   checkNull(data.get("teacherProfile").get("teacherCorrespondenceState")) , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Correspondence District", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table, checkNull(data.get("teacherProfile").get("teacherCorrespondenceDistrict")) , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Correspondence Pin Code", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 3, 1, f);
-		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Permanent Address", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 3, 1, f);
-		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Permanent State", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
-		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Permanent District ", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
-		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Permanent Pin Code", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 3, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  checkNull(data.get("teacherProfile").get("teacherCorrespondencePin")) , 3, 1, f);
+		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Home town address as per service record", 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  checkNull(data.get("teacherProfile").get("teacherPermanentAddress")) , 3, 1, f);
+		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Home town State", 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table, checkNull(data.get("teacherProfile").get("teacherParmanentState")) , 1, 1, f);
+		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Home town District ", 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  checkNull(data.get("teacherProfile").get("teacherPermanentDistrict")) , 1, 1, f);
+		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Home town Pin Code", 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  checkNull(data.get("teacherProfile").get("teacherPermanentPin")) , 3, 1, f);
 		
 		TeachCertiCommonMethod.createDataHeaderCellTableCenter(table, "DISABILITY", 4, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Any kind of Disability", 1, 1, f);
@@ -264,36 +267,39 @@ public class CertificationGenerateUtil {
 	}
 
 	
-	public Table fetchTechSpousDetails(Document doc ,PdfFont f){
+	public Table fetchTechSpousDetails(Document doc ,PdfFont f,Map<String,Map<String,Object>> data){
 		
 		float[] columnWidths = {1.7f , 1.5f ,1.7f ,1.5f};
 		Table table = new Table(UnitValue.createPercentArray(columnWidths));
 		table.setWidth(UnitValue.createPercentValue(100));
 		
+		String spouseStatus=checkNull(data.get("teacherProfile").get("spouseStatus"));
+		
 		TeachCertiCommonMethod.createDataHeaderCellTableCenter(table, "SPOUSE DETAILS", 4, 1, f);
 		
+		
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "KVS Employee", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  spouseStatus.equalsIgnoreCase("1")?"Yes":"NA" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Central Government Employee", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  spouseStatus.equalsIgnoreCase("2")?"Yes":"NA" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "State Government Employee", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  spouseStatus.equalsIgnoreCase("3")?"Yes":"NA" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "None of these", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  spouseStatus.equalsIgnoreCase("5")?"Yes":"NA" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Spouse Employee Code", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table, spouseStatus.equalsIgnoreCase("1")? checkNull(data.get("teacherProfile").get("spouseEmpCode")) :"NA" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Spouse Name", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  spouseStatus.equalsIgnoreCase("1")? checkNull(data.get("teacherProfile").get("spouseName")) :"NA" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Spouse Position ", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCell(table,  spouseStatus.equalsIgnoreCase("1")? checkNull(data.get("teacherProfile").get("spousePost")) :"NA" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Spouse Station", 1, 1, f);
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);		
+		TeachCertiCommonMethod.createDataCell(table, spouseStatus.equalsIgnoreCase("1")? checkNull(data.get("teacherProfile").get("spouseStationName")) :"NA" , 1, 1, f);		
 		return table;
 				
 		
 	}
 	
-	public Table fetchTeachWorkExperience(Document doc ,PdfFont f){
+	public Table fetchTeachWorkExperience(Document doc ,PdfFont f,Map<String,List<Map<String,Object>>> data){
 		
 		float[] columnWidths = {2 , .5f ,.5f ,.5f , 1 ,1 ,1 ,1};
 		Table table = new Table(UnitValue.createPercentArray(columnWidths));
@@ -310,7 +316,7 @@ public class CertificationGenerateUtil {
 		TeachCertiCommonMethod.createDataHeaderCellTableCenter(table, "Appointed for Subject", 1, 1, f);
 		TeachCertiCommonMethod.createDataHeaderCellTableCenter(table, "Transfer Ground", 1, 1, f);
 
-		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
+//		TeachCertiCommonMethod.createDataCell(table,  checkNull(data.get("experience").get(0).get("udiseSchoolName"))  , 1, 1, f);
 		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCell(table,  "0" , 1, 1, f);
@@ -425,6 +431,17 @@ public class CertificationGenerateUtil {
 		} catch (MalformedURLException | FileNotFoundException e1) {
 			e1.printStackTrace();
 		}
+	}
+	
+	public String checkNull(Object data) {
+		
+		if(data ==null) {
+			return "";
+		}else {
+			return String.valueOf(data);	
+		}
+		
+		
 	}
 
 }
