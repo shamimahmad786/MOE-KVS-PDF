@@ -68,13 +68,25 @@ public class TeachCertiCommonMethod {
 		table.addCell(cell);
 
 	}
+	
+	public static void createDataCellCategoryWithOutBorderRight(Table table, String content, int colspan, int rowspan, PdfFont f)
+			throws IOException {
+
+		// PdfFont f = PdfFontFactory.createFont(FONT, PdfEncodings.IDENTITY_H);
+		Cell cell = new Cell(rowspan, colspan).add(new Paragraph(content).setFont(f).setFontSize(11)).setPaddingTop(-3);
+//		cell.setMinHeight(14);
+		cell.setBorder(Border.NO_BORDER);
+		cell.setTextAlignment(TextAlignment.RIGHT);
+		table.addCell(cell);
+
+	}
 	public static void createDataCellWithOutBorderLeft(Table table, String content, int colspan, int rowspan, PdfFont f)
 			throws IOException {
 
 		// PdfFont f = PdfFontFactory.createFont(FONT, PdfEncodings.IDENTITY_H);
 		Cell cell = new Cell(rowspan, colspan).add(new Paragraph(content).setFont(f).setFontSize(11)).setPaddingTop(-3);
 //		cell.setMinHeight(14);
-		cell.setTextAlignment(TextAlignment.CENTER);
+		cell.setTextAlignment(TextAlignment.LEFT);
 		cell.setBorder(Border.NO_BORDER);
 		table.addCell(cell);
 
