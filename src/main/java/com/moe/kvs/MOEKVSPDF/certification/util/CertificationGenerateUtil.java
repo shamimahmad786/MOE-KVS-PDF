@@ -1,19 +1,32 @@
 package com.moe.kvs.MOEKVSPDF.certification.util;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.DatatypeConverter;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.ResourceUtils;
+import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itextpdf.io.IOException;
 import com.itextpdf.io.font.FontConstants;
 import com.itextpdf.io.image.ImageData;
@@ -42,16 +55,21 @@ import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.UnitValue;
 import com.itextpdf.layout.property.VerticalAlignment;
 import com.moe.kvs.MOEKVSPDF.beans.ExprienceBean;
+import com.moe.kvs.MOEKVSPDF.beans.MailBean;
 import com.moe.kvs.MOEKVSPDF.beans.MiscelaneousBean;
 
 
 @Component
 public class CertificationGenerateUtil {
 	
+	
+	@Value("${userBucket.path}")
+	private String UPLOADED_FOLDER;
+	
 	String pattern = "dd-MM-yyyy";
 	SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
 	
-	public ResponseEntity<?> downloadCertificate(Map<String,Map<String,Object>> dataObj,List<ExprienceBean> expObj ,MiscelaneousBean miscelaneousBean)
+	public ResponseEntity<?> downloadCertificate(Map<String,Map<String,Object>> dataObj,List<ExprienceBean> expObj ,MiscelaneousBean miscelaneousBean,Integer reportType)
 			throws IOException, java.io.IOException {
 		
 		PdfFont font = PdfFontFactory.createFont(FontConstants.TIMES_ROMAN);
@@ -186,8 +204,94 @@ public class CertificationGenerateUtil {
 		byteArrayOutputStream.close();
 		byte[] bytes = byteArrayOutputStream.toByteArray();
 		HttpHeaders headers = new HttpHeaders();
-		headers.add("Content-Disposition", "inline; filename=Teacher Certificate.pdf");
-		return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_PDF).body(bytes);
+		
+		File teacherFolder = new File(UPLOADED_FOLDER + File.separator + dataObj.get("teacherProfile").get("teacherId"));
+//		UPLOADED_FOLDER
+		if (!teacherFolder.exists()) {
+			teacherFolder.mkdirs();
+		}
+		
+		Path path = Paths.get(teacherFolder + File.separator + "profile_verified_by_teacher" + ".pdf");
+		Files.write(path, bytes);
+		
+        String base64Encoded = DatatypeConverter.printBase64Binary(bytes);
+        
+        HttpHeaders headers1 = new HttpHeaders();
+        headers1.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        MultiValueMap<String, String> map1 = new LinkedMultiValueMap<String, String>();
+        map1.add("file", base64Encoded);
+        map1.add("procesoId", "11");
+        map1.add("fuenteId", "11");
+        HttpEntity<MultiValueMap<String, String>> requestEntity
+                = new HttpEntity<MultiValueMap<String, String>>(map1, headers1);
+        RestTemplate rest=new RestTemplate();
+        
+//        System.out.println("requestJson-->"+base64Encoded);
+        String jsonInString =null;
+        try {
+        	MailBean obj=new MailBean();
+        	
+        	obj.setPdfbase64Encoded(base64Encoded);
+        	obj.setApplicationName("KVS Teacher");
+        	obj.setApplicationId("1");
+        	obj.setAttachmentYn(1);
+        	obj.setAttachmentPath("xyz");
+        	obj.setEmailTo(String.valueOf(dataObj.get("teacherProfile").get("teacherEmail")));
+//        	obj.setMobile("9162284786");
+        	obj.setSignature("Dear "+String.valueOf(dataObj.get("teacherProfile").get("teacherName")).split(" ")[0]);
+        	if(reportType==1) {
+        		obj.setReportType(1);
+        		//school
+        	obj.setContent("We are pleased to inform you that your profile has been reviewed and verified by KV/HQ/RO/ZIET. We kindly request you to review your final profile, which is attached for your reference.\r\n"
+        			+ "\r\n"
+        			+ " \r\n"
+        			+ " If You found any discrepancy in the data then Kindly contact to KV School immediately "
+        			+ "\r\n"
+        			+ "Please do not reply to this email as this is a system-generated email.");
+        	}else if(reportType==2) {
+        		obj.setReportType(2);
+        		obj.setContent("Thank you for submitting your profile for review and verification to KV/HQ/RO/ZIET. A copy of profile is attached for your reference.\r\n"
+        			+ "\r\n"
+        			+ " \r\n"
+        			+ "\r\n"
+        			+ "Please note that your profile is currently undergoing verification and may require amendments, if necessary, by your controlling officer. After the verification process is complete, you will receive further communication regarding your profile.\r\n"
+        			+ "\r\n"
+        			+ " \r\n"
+        			+ "\r\n"
+        			+ "Please do not reply to this email as this is a system-generated email.");	
+        	}
+        	
+        	obj.setClosing("KVS Team");
+        	obj.setEmailTemplateId("MSG-5836");
+        	obj.setEmailCc("nicsupport-edu@gov.in");
+        	ObjectMapper mapper = new ObjectMapper();
+        	 jsonInString = mapper.writeValueAsString(obj);
+//        	Staff obj = new Staff();
+        	
+//        String requestJson="{ \"pdfbase64Encoded\":"+base64Encoded+", \"applicationName\":\"Kvs Teacher\",\"attachmentYn\":\"1\" ,\"attachmentPath\":\"XYZ\",\"applicationId\":\"1\", \"emailTemplateId\": \"MSG-5836\", \"emailTo\": \"shamim.ahmad586@gmail.com\", \"emailCc\": \"shamim.ahmad586@gmail.com\", \"subject\": \"Teacher Module Credential \", \"signature\": \"Dear Shamim \", \"content\": \"Test \", \"closing\":\"Test \" }";
+//        
+//        
+//        System.out.println(requestJson);
+        }catch(Exception ex) {
+        	ex.printStackTrace();
+        }
+//        System.out.println("jsonInString---->"+jsonInString);
+        
+//        System.out.println("requestJson---->"+requestJson);
+        
+        HttpEntity<String> request = new HttpEntity<String>(jsonInString,headers);
+//    	String url = "http://10.25.26.251:8686/api/sendMessage";
+        String url = "http://10.247.141.227:8080/ME-RAD-MESSAGE/api/sendMessage";
+        rest.exchange(url, HttpMethod.POST, request,Map.class,1);	
+        
+//        rest.postForObject("http://localhost:8686/api/upload", requestEntity, String.class);
+        
+//        f1.close();
+		
+//		headers.add("Content-Disposition", "inline; filename=Teacher Certificate.pdf");
+//		return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_PDF).body(bytes);
+		
+		return null;
 	}
 	
 	public Table fetchBasicProfile(Document doc ,PdfFont f,Map<String,Map<String,Object>> data){
@@ -430,7 +534,7 @@ public class CertificationGenerateUtil {
 		TeachCertiCommonMethod.createDataCellCategoryWithOutBorder(table, "(8) Period of continuous absence(except maternity leave)", 1, 1, f);
 		TeachCertiCommonMethod.createDataCellWithOutBorder(table,   miscelaneousBean.getAbsenceDaysOne() != null ? miscelaneousBean.getAbsenceDaysOne()+"" :"" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithOutBorder(table, "(9) Whether, The employee has completed one teure at hard/NER/Priority station(during entire service)", 1, 1, f);
-		TeachCertiCommonMethod.createDataCellWithOutBorder(table,  miscelaneousBean.getSurveHardYn()+"" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCellWithOutBorder(table,  miscelaneousBean.getSurveHardYn() ==1 ?"Yes":"No" , 1, 1, f);
 
 	   // table.setBorder(Border.NO_BORDER);
 		//doc.add(new AreaBreak(AreaBreakType.NEXT_PAGE));

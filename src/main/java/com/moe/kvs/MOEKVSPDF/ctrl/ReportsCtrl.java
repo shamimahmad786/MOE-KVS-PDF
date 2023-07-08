@@ -1,24 +1,35 @@
 package com.moe.kvs.MOEKVSPDF.ctrl;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.DatatypeConverter;
+
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+//import org.springframework.web.client.RestTemplate;
 import org.springframework.web.client.RestTemplate;
 
 //import com.example.MOERADTEACHER.util.QueryResult;
@@ -45,6 +56,38 @@ import com.moe.kvs.MOEKVSPDF.resource.NativeRepository;
 import com.moe.kvs.MOEKVSPDF.resource.PageXofY;
 import com.moe.kvs.MOEKVSPDF.resource.QueryResult;
 
+
+
+
+
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URI;
+//import java.net.http.HttpClient;
+//import java.net.http.HttpRequest;
+//import java.net.http.HttpRequest.BodyPublishers;
+//import java.net.http.HttpResponse;
+//import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.channels.Channels;
+import java.nio.channels.Pipe;
+import java.nio.charset.StandardCharsets;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.RequestBuilder;
+//import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+
+
+
 @RestController
 @RequestMapping("/api/kvsreport")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -55,6 +98,12 @@ public class ReportsCtrl {
 	NativeRepository nativeRepository;
 	@Autowired
 	CertificationGenerateUtil certificationGenerateUtil;
+	
+	@Value("${userBucket.path}")
+	private String UPLOADED_FOLDER;
+	
+	
+	
 
 	@RequestMapping(value = "/testReport", method = RequestMethod.POST)
 	public ResponseEntity<?> testReport() throws Exception {
@@ -222,6 +271,20 @@ public class ReportsCtrl {
 	@RequestMapping(value = "/sentReport", method = RequestMethod.POST)
 	public ResponseEntity<?> sentReport(@RequestBody String data) throws Exception {
 		String textContent = "Sapiensplendide noluisse ... mollis verterem alia regione quidam.";
+		
+		System.out.println("send report--->"+data);
+		ObjectMapper mapperObj = new ObjectMapper();
+		ReportBeans reportPojo = new ReportBeans();
+		Map<Object, Object> maps=null;
+		Integer reportType=null; 
+		try {
+			ObjectMapper objectMapper = new ObjectMapper();
+			 maps = objectMapper.readValue(data, Map.class);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		reportType=Integer.parseInt(String.valueOf(maps.get("reportType")));
+		
 //		         String simplePdf = "E:\\shamimShared\\teacher-report.pdf";
 //		         WriterProperties wp = new WriterProperties();
 //		         wp.setPdfVersion(PdfVersion.PDF_2_0);
@@ -262,8 +325,10 @@ public class ReportsCtrl {
 
 //		 Get API Data
 
+		System.out.println("called");
+		
 		ObjectMapper mapper = new ObjectMapper();
-		String layload = "828";
+		String layload = String.valueOf(maps.get("teacherId"));
 		Map<String, Object> map = null;
 		Map<String, Map<String, Object>> dataObj = null;
 		Map<String, List<Map<String, Object>>> expObj = null;
@@ -272,9 +337,15 @@ public class ReportsCtrl {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		HttpEntity<String> request = new HttpEntity<String>(layload, headers);
-//			String access_token_url ="https://kvsonlinetransfer.kvs.gov.in/MOE-RAD-TEACHER/api/teacher/getConfirmedTeacherDetails";
-		String access_token_url = "http://10.25.26.251:8014/api/teacher/getConfirmedTeacherDetails";
+			String access_token_url ="http://10.247.141.239:8080/MOE-RAD-TEACHER/api/teacher/getConfirmedTeacherDetails";
+		
+		try {
+//		String access_token_url = "http://10.25.26.251:8014/api/teacher/getConfirmedTeacherDetails";
 		response = restTemplate.exchange(access_token_url, HttpMethod.POST, request, String.class);
+		
+		}catch(Exception ex) {
+			ex.printStackTrace();
+		}
 		try {
 			System.out.println(response.getBody());
 			map = mapper.readValue(response.getBody(), Map.class);
@@ -298,8 +369,37 @@ public class ReportsCtrl {
 		System.out.println("Teacher Details--->"+dataObj.get("experience"));
 	
 		
+		try {
+//			File file=new File("E:/uploadDoc/1047/profile_verified_by_teacher.pdf");
+////			FileBody filebody = new FileBody(file, ContentType.DEFAULT_BINARY);
+////			
+//			System.out.println(file.exists());
+////			
+//			HttpHeaders header = new HttpHeaders();
+//			header.setContentType(MediaType.MULTIPART_FORM_DATA);
+//			MultiValueMap<String, Object> body
+//			  = new LinkedMultiValueMap<>();
+//			body.add("file", new FileBody(file, ContentType.DEFAULT_BINARY));
+////			body.add("name", "shamim");
+//			
+//			HttpEntity<MultiValueMap<String, Object>> requestEntity
+//			  = new HttpEntity<>(body, header);
+//			RestTemplate restTemplate1 = new RestTemplate();
+//			
+//			ResponseEntity<String> response1 =	 restTemplate1.postForEntity("http://localhost:8686/api/upload",  requestEntity,String.class);	
+//			
+//			
+			
+			
+			
 
-		return certificationGenerateUtil.downloadCertificate(dataObj,expBean ,miscelaneousBean);
+		}catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		
+		
+//return null;
+		return certificationGenerateUtil.downloadCertificate(dataObj,expBean ,miscelaneousBean,reportType);
 
 	}
 
@@ -322,5 +422,16 @@ public class ReportsCtrl {
 		}
 		return ResponseEntity.ok(qrObj);
 	}
+	
+	@RequestMapping(value = "/profileConfirmByTeacher", method = RequestMethod.POST)
+	public ResponseEntity<?> profileConfirmByTeacher(@RequestBody String data) throws Exception {
+		return sentReport(data);
+	}
+	
+	
+	
+	
+	
+	
 
 }
