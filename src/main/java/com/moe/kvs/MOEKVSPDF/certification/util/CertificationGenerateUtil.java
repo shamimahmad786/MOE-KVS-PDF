@@ -293,13 +293,13 @@ public class CertificationGenerateUtil {
         	ex.printStackTrace();
         }
 //        rest.postForObject("http://localhost:8686/api/upload", requestEntity, String.class);
-        
+//        
 //        f1.close();
 		
-		headers.add("Content-Disposition", "inline; filename=Teacher Certificate.pdf");
-		return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_PDF).body(bytes);
+//		headers.add("Content-Disposition", "inline; filename=Teacher Certificate.pdf");
+//		return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_PDF).body(bytes);
 		
-//		return null;
+		return null;
 	}
 	
 	void setDegignation(Document doc ,PdfFont f, Map<String,Map<String,Object>> data){
