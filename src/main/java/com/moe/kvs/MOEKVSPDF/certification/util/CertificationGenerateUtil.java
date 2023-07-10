@@ -292,14 +292,14 @@ public class CertificationGenerateUtil {
         }catch(Exception ex) {
         	ex.printStackTrace();
         }
-//        rest.postForObject("http://localhost:8686/api/upload", requestEntity, String.class);
+    //    rest.postForObject("http://localhost:8686/api/upload", requestEntity, String.class);
 //        
 //        f1.close();
 		
-//		headers.add("Content-Disposition", "inline; filename=Teacher Certificate.pdf");
-//		return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_PDF).body(bytes);
+		headers.add("Content-Disposition", "inline; filename=Teacher Certificate.pdf");
+		return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_PDF).body(bytes);
 		
-		return null;
+//		return null;
 	}
 	
 	void setDegignation(Document doc ,PdfFont f, Map<String,Map<String,Object>> data){
@@ -377,6 +377,9 @@ public class CertificationGenerateUtil {
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Staff Type", 1, 1, f);
 		TeachCertiCommonMethod.createDataCellLeft(table,  StaticMethod.fetchStaffType(checkNull(data.get("teacherProfile").get("teachingNonteaching"))) , 1, 1, f);
 		
+				
+		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Have you been recruited under special recruitment for NER ", 2, 1, f);
+	    TeachCertiCommonMethod.createDataCellLeft(table,  "" , 2, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "DoJ in KVS", 1, 1, f);
 		TeachCertiCommonMethod.createDataCellLeft(table,  data.get("teacherProfile").get("lastPromotionPositionDate") == null ? "" : simpleDateFormat.format(new SimpleDateFormat("yyyy-MM-dd").parse(data.get("teacherProfile").get("lastPromotionPositionDate").toString()) ) , 3, 1, f);
 		
@@ -422,7 +425,7 @@ public class CertificationGenerateUtil {
 		TeachCertiCommonMethod.createDataCellLeft(table,  checkNull(data.get("teacherProfile").get("teacherPermanentPin")) , 3, 1, f);
 		
 		TeachCertiCommonMethod.createDataHeaderCellTableCenter(table, "DISABILITY", 4, 1, f);
-		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Any kind of Disability if any", 1, 1, f);
+		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Disability if any", 1, 1, f);
 		TeachCertiCommonMethod.createDataCellLeft(table,  data.get("teacherProfile").get("teacherDisabilityYn").equals("1")?"Yes":"No" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Type of Disability", 1, 1, f);
 		TeachCertiCommonMethod.createDataCellLeft(table, StaticMethod.fetchDisablityType(checkNull(data.get("teacherProfile").get("teacherDisabilityType"))) , 1, 1, f);
@@ -456,9 +459,9 @@ public class CertificationGenerateUtil {
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Spouse Name", 1, 1, f);
 		TeachCertiCommonMethod.createDataCellLeft(table,  spouseStatus.equalsIgnoreCase("1")? checkNull(data.get("teacherProfile").get("spouseName")) :"NA" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Spouse Position ", 1, 1, f);
-		TeachCertiCommonMethod.createDataCellLeft(table,  spouseStatus.equalsIgnoreCase("1")? checkNull(data.get("teacherProfile").get("spousePost")) :"NA" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCellLeft(table,  spouseStatus.equalsIgnoreCase("1")? checkNull(data.get("teacherProfile").get("spousePost"))+ " (" +checkNull(data.get("teacherProfile").get("spouseEmpCode")) + ")" :"NA" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Spouse Station", 1, 1, f);
-		TeachCertiCommonMethod.createDataCellLeft(table, spouseStatus.equalsIgnoreCase("1")? checkNull(data.get("teacherProfile").get("spouseStationName")) :"NA" , 1, 1, f);		
+		TeachCertiCommonMethod.createDataCellLeft(table, spouseStatus.equalsIgnoreCase("1")? checkNull(data.get("teacherProfile").get("spouseStationName")) +" (" +checkNull(data.get("teacherProfile").get("spouseStationCode")) + ")" :"NA" , 1, 1, f);		
 		return table;
 				
 		
@@ -483,7 +486,7 @@ public class CertificationGenerateUtil {
 //		TeachCertiCommonMethod.createDataCell(table,  checkNull(data.get("experience").get(0).get("udiseSchoolName"))  , 1, 1, f);
 		for(ExprienceBean obj : expObj) {
 			
-			TeachCertiCommonMethod.createDataCellLeft(table,  obj.getUdiseSchoolName() != null ? obj.getUdiseSchoolName():"" , 1, 1, f);
+			TeachCertiCommonMethod.createDataCellLeft(table,  obj.getUdiseSchoolName() != null ? obj.getUdiseSchoolName():" (" + obj.getUdiseSchCode() + ")" , 1, 1, f);
 			TeachCertiCommonMethod.createDataCellLeft(table,  obj.getWorkStartDate() !=null? simpleDateFormat.format(obj.getWorkStartDate()): "" , 1, 1, f);
 			TeachCertiCommonMethod.createDataCellLeft(table,  obj.getWorkEndDate() !=null ? simpleDateFormat.format(obj.getWorkEndDate()) : "", 1, 1, f);
 			TeachCertiCommonMethod.createDataCellLeft(table,  obj.getPositionType() != null ? obj.getPositionType() :"" , 1, 1, f);
@@ -516,7 +519,7 @@ public class CertificationGenerateUtil {
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "(5) Whether your are main care-giver to the person with disability in the family (i.e spouse/son/daughter)", 1, 1, f);
 		TeachCertiCommonMethod.createDataCellLeft(table,   miscelaneousBean.getCareGiverFaimlyYnD() == 1 ? "Yes" : "No" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "(6) Members of JCM at KVS Regional Office (RJCM) / KVS Headquarters (NJCM)", 1, 1, f);
-		TeachCertiCommonMethod.createDataCellLeft(table,   miscelaneousBean.getMemberJCM() == 1 ? "RJCM" : miscelaneousBean.getMemberJCM()==2 ? "NJCM":"NO" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCellLeft(table,   miscelaneousBean.getMemberJCM() == 1 ? "RJCM" : miscelaneousBean.getMemberJCM()==2 ? "NJCM":"NONE" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "(7) Active stay (in years) refer 2 (i) of Part- 1 of Transfer Policy 2023.", 1, 1, f);
 		TeachCertiCommonMethod.createDataCellLeft(table,   miscelaneousBean.getAbsenceDaysOne()+"" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "(8) Whether disciplinary proceedings are in progress", 1, 1, f);
