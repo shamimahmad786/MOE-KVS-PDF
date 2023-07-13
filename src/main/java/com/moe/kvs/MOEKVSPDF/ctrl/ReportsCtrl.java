@@ -261,7 +261,7 @@ public class ReportsCtrl {
 					+ "  (ksm.region_name, ksm.kv_name ,spm.school_code),())\r\n"
 					+ "order by spm.school_code, md.post_code , ms2.subject_code";
 		}else if(reportPojo.getReportId().equalsIgnoreCase("6")) {
-			Query="select count(*) as total_no_onboarded_teacher, count(*)  filter(where verify_flag='TA') as teacher_approve , count(*)  filter(where verify_flag='SA') as school_approve from public.teacher_profile tp  ";
+			Query="select count(*) as total_no_onboarded_teacher, count(*)  filter(where verify_flag='TA') as teacher_approve , count(*)  filter(where verify_flag='SA') as school_approve from public.teacher_profile tp  where kv_code !='9999' ";
 		}
 
 		System.out.println("Query--->" + Query);

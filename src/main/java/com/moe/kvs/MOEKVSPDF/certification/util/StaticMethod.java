@@ -7,7 +7,7 @@ public class StaticMethod {
 		if(data ==null) {
 			return "";
 		}else {
-			return String.valueOf(data).equalsIgnoreCase("1")?"Male":String.valueOf(data).equalsIgnoreCase("2")?"Female":String.valueOf(data).equalsIgnoreCase("3")?"Transgender":"";	
+			return String.valueOf(data).equalsIgnoreCase("1")?"MALE":String.valueOf(data).equalsIgnoreCase("2")?"FEMALE":String.valueOf(data).equalsIgnoreCase("3")?"TRANSGENDER":"";	
 		}	
 	}
 	
@@ -15,10 +15,10 @@ public class StaticMethod {
 		String str ="";
 		switch (data) {
 		case "1":
-			 str = "Teaching";
+			 str = "TEACHING";
 			break;
 		case "2":
-			 str = "Non-Teaching";
+			 str = "NON-TEACHING";
 			break;
 		}
 		return str;
@@ -29,13 +29,14 @@ public class StaticMethod {
 		String str ="";
 		switch (data) {
 		case "1":
-			 str = "Married";
+			
+			 str = "MARRIED";
 			break;
 		case "4":
-			 str = "Single";
+			 str = "SINGLE";
 			break;
 		case "7":
-			 str = "Widow/Widower";
+			 str = "WIDOW/WINDOWER";
 			break;
 		}
 		return str;
@@ -46,13 +47,13 @@ public class StaticMethod {
 		String str ="";
 		switch (data) {
 		case "1":
-			 str = "Visually Handicapped";
+			 str = "VISUALLY HANDICAPPED";
 			break;
 		case "2":
-			 str = "Hearing Impairment";
+			 str = "HEARING IMPAIRMENT";
 			break;
 		case "3":
-			 str = "Physically Disabled";
+			 str = "PHYSICALLY DISABLED";
 			break;
 		}
 		return str;
