@@ -337,10 +337,10 @@ public class ReportsCtrl {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		HttpEntity<String> request = new HttpEntity<String>(layload, headers);
-			String access_token_url ="http://10.247.141.239:8080/MOE-RAD-TEACHER/api/teacher/getConfirmedTeacherDetails";
+	    String access_token_url ="http://10.247.141.239:8080/MOE-RAD-TEACHER/api/teacher/getConfirmedTeacherDetails";
 		
 		try {
-//		String access_token_url = "http://10.25.26.251:8014/api/teacher/getConfirmedTeacherDetails";
+		//String access_token_url = "http://10.25.26.251:8014/api/teacher/getConfirmedTeacherDetails";
 		response = restTemplate.exchange(access_token_url, HttpMethod.POST, request, String.class);
 		
 		}catch(Exception ex) {
@@ -402,6 +402,107 @@ public class ReportsCtrl {
 		return certificationGenerateUtil.downloadCertificate(dataObj,expBean ,miscelaneousBean,reportType);
 
 	}
+	
+	@RequestMapping(value = "/sentPdfReport", method = RequestMethod.POST)
+	public ResponseEntity<?> sentPdfReportOnMail(@RequestBody String data) throws Exception {
+		String textContent = "Sapiensplendide noluisse ... mollis verterem alia regione quidam.";
+		
+		System.out.println("send report--->"+data);
+		ObjectMapper mapperObj = new ObjectMapper();
+		ReportBeans reportPojo = new ReportBeans();
+		Map<Object, Object> maps=null;
+		Integer reportType=null; 
+		try {
+			ObjectMapper objectMapper = new ObjectMapper();
+			 maps = objectMapper.readValue(data, Map.class);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		reportType=Integer.parseInt(String.valueOf(maps.get("reportType")));
+		
+//		 Get API Data
+
+		System.out.println("called");
+		
+		ObjectMapper mapper = new ObjectMapper();
+		String layload = String.valueOf(maps.get("teacherId"));
+		Map<String, Object> map = null;
+		Map<String, Map<String, Object>> dataObj = null;
+		Map<String, List<Map<String, Object>>> expObj = null;
+		ResponseEntity<String> response = null;
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+		HttpEntity<String> request = new HttpEntity<String>(layload, headers);
+		String access_token_url ="http://10.247.141.239:8080/MOE-RAD-TEACHER/api/teacher/getConfirmedTeacherDetails";
+		
+		try {
+		//String access_token_url = "http://10.25.26.251:8014/api/teacher/getConfirmedTeacherDetails";
+		response = restTemplate.exchange(access_token_url, HttpMethod.POST, request, String.class);
+		
+		}catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		try {
+			System.out.println(response.getBody());
+			map = mapper.readValue(response.getBody(), Map.class);
+			dataObj = (Map<String, Map<String, Object>>) map.get("response");
+		
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		
+  // System.out.println("Teacher Details--->"+dataObj.get("schoolDetails"));
+		
+	
+		List<ExprienceBean> expBean = null;
+		MiscelaneousBean miscelaneousBean = null;
+		ObjectMapper mapper1 = new ObjectMapper();
+		expBean = mapper1.readValue(mapper.writeValueAsString(dataObj.get("experience")), new TypeReference<List<ExprienceBean>>(){});
+		miscelaneousBean = mapper1.readValue(mapper.writeValueAsString(dataObj.get("transDetails")), MiscelaneousBean.class);
+		//String str = mapper1.writeValueAsString(dataObj.get("experience"));
+		
+		System.out.println("valui" +miscelaneousBean);
+		System.out.println("Teacher Details--->"+dataObj.get("experience"));
+	
+		
+		try {
+//			File file=new File("E:/uploadDoc/1047/profile_verified_by_teacher.pdf");
+////			FileBody filebody = new FileBody(file, ContentType.DEFAULT_BINARY);
+////			
+//			System.out.println(file.exists());
+////			
+//			HttpHeaders header = new HttpHeaders();
+//			header.setContentType(MediaType.MULTIPART_FORM_DATA);
+//			MultiValueMap<String, Object> body
+//			  = new LinkedMultiValueMap<>();
+//			body.add("file", new FileBody(file, ContentType.DEFAULT_BINARY));
+////			body.add("name", "shamim");
+//			
+//			HttpEntity<MultiValueMap<String, Object>> requestEntity
+//			  = new HttpEntity<>(body, header);
+//			RestTemplate restTemplate1 = new RestTemplate();
+//			
+//			ResponseEntity<String> response1 =	 restTemplate1.postForEntity("http://localhost:8686/api/upload",  requestEntity,String.class);	
+//			
+//			
+			
+			
+			
+
+		}catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		
+		
+//return null;
+		return certificationGenerateUtil.downloadCertificateWithMail(dataObj,expBean ,miscelaneousBean,reportType);
+
+	}
+	
+	
+	
+	
 
 	@RequestMapping(value = "/getRegionStationSchool", method = RequestMethod.POST)
 	public ResponseEntity<?> getRegionStationSchool() throws Exception {
