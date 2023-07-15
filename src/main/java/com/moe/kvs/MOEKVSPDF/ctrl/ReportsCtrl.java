@@ -339,10 +339,10 @@ public class ReportsCtrl {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		HttpEntity<String> request = new HttpEntity<String>(layload, headers);
-			String access_token_url ="http://10.247.141.239:8080/MOE-RAD-TEACHER/api/teacher/getConfirmedTeacherDetails";
+//			String access_token_url ="http://10.247.141.239:8080/MOE-RAD-TEACHER/api/teacher/getConfirmedTeacherDetails";
 		
 		try {
-//		String access_token_url = "http://10.25.26.251:8014/api/teacher/getConfirmedTeacherDetails";
+		String access_token_url = "http://localhost:8014/api/teacher/getConfirmedTeacherDetails";
 		response = restTemplate.exchange(access_token_url, HttpMethod.POST, request, String.class);
 		
 		}catch(Exception ex) {

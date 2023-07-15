@@ -447,21 +447,21 @@ public class CertificationGenerateUtil {
 		
 		
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "KVS Employee", 1, 1, f);
-		TeachCertiCommonMethod.createDataCellLeft(table,  spouseStatus.equalsIgnoreCase("1")?"Yes":"NA" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCellLeft(table, checkNull(spouseStatus).equalsIgnoreCase("1")?"Yes":"NA" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Central Government Employee", 1, 1, f);
-		TeachCertiCommonMethod.createDataCellLeft(table,  spouseStatus.equalsIgnoreCase("2")?"Yes":"NA" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCellLeft(table,  checkNull(spouseStatus).equalsIgnoreCase("2")?"Yes":"NA" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "State Government Employee", 1, 1, f);
-		TeachCertiCommonMethod.createDataCellLeft(table,  spouseStatus.equalsIgnoreCase("3")?"Yes":"NA" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCellLeft(table,  checkNull(spouseStatus).equalsIgnoreCase("3")?"Yes":"NA" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "None of these", 1, 1, f);
-		TeachCertiCommonMethod.createDataCellLeft(table,  spouseStatus.equalsIgnoreCase("5")?"Yes":"NA" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCellLeft(table,  checkNull(spouseStatus).equalsIgnoreCase("5")?"Yes":"NA" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Spouse Employee Code", 1, 1, f);
-		TeachCertiCommonMethod.createDataCellLeft(table, spouseStatus.equalsIgnoreCase("1")? checkNull(data.get("teacherProfile").get("spouseEmpCode")) :"NA" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCellLeft(table, checkNull(spouseStatus).equalsIgnoreCase("1")? checkNull(data.get("teacherProfile").get("spouseEmpCode")) :"NA" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Spouse Name", 1, 1, f);
-		TeachCertiCommonMethod.createDataCellLeft(table,  spouseStatus.equalsIgnoreCase("1")? checkNull(data.get("teacherProfile").get("spouseName")) :"NA" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCellLeft(table,  checkNull(spouseStatus).equalsIgnoreCase("1")? checkNull(data.get("teacherProfile").get("spouseName")) :"NA" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Spouse Position ", 1, 1, f);
-		TeachCertiCommonMethod.createDataCellLeft(table,  spouseStatus.equalsIgnoreCase("1")? checkNull(data.get("teacherProfile").get("spousePost"))+ " (" +checkNull(data.get("teacherProfile").get("spouseEmpCode")) + ")" :"NA" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCellLeft(table,  checkNull(spouseStatus).equalsIgnoreCase("1")? checkNull(data.get("teacherProfile").get("spousePost"))+ " (" +checkNull(data.get("teacherProfile").get("spouseEmpCode")) + ")" :"NA" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "Spouse Station", 1, 1, f);
-		TeachCertiCommonMethod.createDataCellLeft(table, spouseStatus.equalsIgnoreCase("1")? checkNull(data.get("teacherProfile").get("spouseStationName")) +" (" +checkNull(data.get("teacherProfile").get("spouseStationCode")) + ")" :"NA" , 1, 1, f);		
+		TeachCertiCommonMethod.createDataCellLeft(table, checkNull(spouseStatus).equalsIgnoreCase("1")? checkNull(data.get("teacherProfile").get("spouseStationName")) +" (" +checkNull(data.get("teacherProfile").get("spouseStationCode")) + ")" :"NA" , 1, 1, f);		
 		return table;
 				
 		
@@ -506,31 +506,33 @@ public class CertificationGenerateUtil {
 		Table table = new Table(UnitValue.createPercentArray(columnWidths));
 		table.setWidth(UnitValue.createPercentValue(100));
 		
+		System.out.println("miscelaneousBean--->"+miscelaneousBean.getPersonalStatusMdgD());
+		
 		TeachCertiCommonMethod.createDataHeaderCellTableCenterWithoutBorder(table, "MISCELLANEOUS", 2, 1, f);
 		
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "(1) Whether the employee is seeking benefit of spouse who is working at the same station where employee is posted/transfer is being sought for", 1, 1, f);
-		TeachCertiCommonMethod.createDataCellLeft(table,  miscelaneousBean.getSpouseKvsYnD() == 1 ? "Yes" : "No" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCellLeft(table,   checkNullWithIntType(miscelaneousBean.getSpouseKvsYnD()) == 1 ? "Yes" : "No" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "(2) Whether the employee is seeking benefit of medical ground (MDG Ground)", 1, 1, f);
-		TeachCertiCommonMethod.createDataCellLeft(table,   miscelaneousBean.getPersonalStatusMdgD() == 1 ? "Yes" : "No" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCellLeft(table,   checkNullWithIntType(miscelaneousBean.getPersonalStatusMdgD()) == 1 ? "Yes" : "No" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "(3) Whether the employee is seeking benefit of single parent (SP Ground)", 1, 1, f);
-		TeachCertiCommonMethod.createDataCellLeft(table,   miscelaneousBean.getPersonalStatusSpD() == 1 ? "Yes" : "No" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCellLeft(table,   checkNullWithIntType(miscelaneousBean.getPersonalStatusSpD()) == 1 ? "Yes" : "No" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "(4) Whether the employee is seeking benefit of Death of Family Person (DFP Ground)", 1, 1, f);
-		TeachCertiCommonMethod.createDataCellLeft(table,   miscelaneousBean.getPersonalStatusDfpD() == 1 ? "Yes" : "No" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCellLeft(table,   checkNullWithIntType(miscelaneousBean.getPersonalStatusDfpD()) == 1 ? "Yes" : "No" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "(5) Whether your are main care-giver to the person with disability in the family (i.e spouse/son/daughter)", 1, 1, f);
-		TeachCertiCommonMethod.createDataCellLeft(table,   miscelaneousBean.getCareGiverFaimlyYnD() == 1 ? "Yes" : "No" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCellLeft(table,   checkNullWithIntType(miscelaneousBean.getCareGiverFaimlyYnD()) == 1 ? "Yes" : "No" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "(6) Members of JCM at KVS Regional Office (RJCM) / KVS Headquarters (NJCM)", 1, 1, f);
-		TeachCertiCommonMethod.createDataCellLeft(table,   miscelaneousBean.getMemberJCM() == 1 ? "RJCM" : miscelaneousBean.getMemberJCM()==2 ? "NJCM":"NONE" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCellLeft(table,   checkNullWithIntType(miscelaneousBean.getMemberJCM()) == 1 ? "RJCM" : miscelaneousBean.getMemberJCM()==2 ? "NJCM":"NONE" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "(7) Active stay (in years) refer 2 (i) of Part- 1 of Transfer Policy 2023.", 1, 1, f);
-		TeachCertiCommonMethod.createDataCellLeft(table,   miscelaneousBean.getAbsenceDaysOne()+"" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCellLeft(table,   checkNullWithIntType(miscelaneousBean.getAbsenceDaysOne())+"" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "(8) Whether disciplinary proceedings are in progress", 1, 1, f);
-		TeachCertiCommonMethod.createDataCellLeft(table,   miscelaneousBean.getDisciplinaryYn() == 1 ? "Yes" : "No" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCellLeft(table,   checkNullWithIntType(miscelaneousBean.getDisciplinaryYn()) == 1 ? "Yes" : "No" , 1, 1, f);
 //		TeachCertiCommonMethod.createDataCellCategoryWithOutBorder(table, "(8) Period of continuous absence(except maternity leave)", 1, 1, f);
 //		TeachCertiCommonMethod.createDataCellWithOutBorder(table,   miscelaneousBean.getAbsenceDaysOne() != null ? miscelaneousBean.getAbsenceDaysOne()+"" :"" , 1, 1, f);
 //		TeachCertiCommonMethod.createDataCellCategoryWithOutBorder(table, "(8) Period of continuous absence(except maternity leave)", 1, 1, f);
 //		TeachCertiCommonMethod.createDataCellWithOutBorder(table,   miscelaneousBean.getAbsenceDaysOne() != null ? miscelaneousBean.getAbsenceDaysOne()+"" :"" , 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithBorder(table, "(9) Whether, The employee has completed one teure at hard/NER/Priority station(during entire service)", 1, 1, f);
 
-		TeachCertiCommonMethod.createDataCellLeft(table,  miscelaneousBean.getSurveHardYn() ==1 ?"Yes":"No" , 1, 1, f);
+		TeachCertiCommonMethod.createDataCellLeft(table,  checkNullWithIntType(miscelaneousBean.getSurveHardYn()) ==1 ?"Yes":"No" , 1, 1, f);
 
 		
 		TeachCertiCommonMethod.createDataCellCategoryWithOutBorder(table, "", 2, 1, f);
@@ -597,6 +599,15 @@ public class CertificationGenerateUtil {
 			return "";
 		}else {
 			return String.valueOf(data).toUpperCase();	
+		}	
+	}
+	
+	
+	public Integer checkNullWithIntType(Integer data) {
+		if(data ==null) {
+			return 99999999;// No value type
+		}else {
+			return data;	
 		}	
 	}
 
