@@ -206,9 +206,9 @@ public class CertificationGenerateUtil {
 
 		doc.add(mainTable);
 		if(reportType == 1) {
-			setDegignation(doc ,font ,dataObj);
-		}else {
 			setDegignationForSchool(doc ,font ,dataObj);
+		}else {
+			setDegignationForEmployee(doc, font, dataObj);
 		}
 		doc.close();
 		
@@ -302,7 +302,7 @@ public class CertificationGenerateUtil {
 //		return null;
 	}
 	
-	void setDegignation(Document doc ,PdfFont f, Map<String,Map<String,Object>> data){
+	void setDegignationForSchool(Document doc ,PdfFont f, Map<String,Map<String,Object>> data){
 		float[] columnWidths = {1 , 1};
 		Table table = new Table(UnitValue.createPercentArray(columnWidths));
 		table.setWidth(UnitValue.createPercentValue(100));
@@ -310,13 +310,13 @@ public class CertificationGenerateUtil {
 		TeachCertiCommonMethod.createDataCellCategoryWithOutBorder(table, "", 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithOutBorder(table, "", 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithOutBorder(table, "Date : " +simpleDateFormat.format(new Date()), 1, 1, f);
-		TeachCertiCommonMethod.createDataCellCategoryWithOutBorderRight(table,  "PRINCIPLE", 1, 1, f);
+		TeachCertiCommonMethod.createDataCellCategoryWithOutBorderRight(table,  "", 1, 1, f);
 		TeachCertiCommonMethod.createDataCellCategoryWithOutBorder(table, "", 1, 1, f);
-		TeachCertiCommonMethod.createDataCellCategoryWithOutBorderRight(table,  "("+checkNull(data.get("schoolDetails").get("kvName"))+")", 1, 1, f);
+		TeachCertiCommonMethod.createDataCellCategoryWithOutBorderRight(table,  "(I/C of  "+checkNull(data.get("schoolDetails").get("kvName"))+")", 1, 1, f);
 		doc.add(table);
 	}
 	
-	void setDegignationForSchool(Document doc ,PdfFont f, Map<String,Map<String,Object>> data){
+	void setDegignationForEmployee(Document doc ,PdfFont f, Map<String,Map<String,Object>> data){
 		float[] columnWidths = {1 , 1};
 		Table table = new Table(UnitValue.createPercentArray(columnWidths));
 		table.setWidth(UnitValue.createPercentValue(100));
@@ -538,10 +538,10 @@ public class CertificationGenerateUtil {
 		TeachCertiCommonMethod.createDataCellCategoryWithOutBorder(table, "", 2, 1, f);
 		
 		TeachCertiCommonMethod.createHeadingWithoutBorderBold(table, "Undertaking :", 2, 1, f);
-		
-		TeachCertiCommonMethod.createDataCellCategoryWithOutBorder(table, "I,the undersigned, certify that to the best of my knowledge and belief, this Profile Information,Qualifications, \r\n"
-				+ "Experience etc .correctly describes the associated employee.", 2, 1, f);
-		TeachCertiCommonMethod.createDataCellCategoryWithOutBorder(table, "I also declare that I have saved all the previous sections separately.", 2, 1, f);
+		TeachCertiCommonMethod.createDataCellCategoryWithOutBorder(table, "(1) I hereby undertake that imformation given by me, as below is absolutely correct and true as per my knowledge and      belief .If later on, any thing is found misleading /wrong then my application is liable to be rejected by KVS and i shall be opened for any disciplinary action as deemed fit against me for giving misleading information", 2, 1, f);
+		TeachCertiCommonMethod.createDataCellCategoryWithOutBorder(table, "(2) I,the undersigned, certify that to the best of my knowledge and belief, this Profile Information,Qualifications, \r\n"
+				+ "       Experience etc .correctly describes the associated employee.", 2, 1, f);
+		TeachCertiCommonMethod.createDataCellCategoryWithOutBorder(table, "(3) I also declare that I have saved all the previous sections separately.", 2, 1, f);
 		
 //		TeachCertiCommonMethod.createDataCellCategoryWithOutBorder(table, "", 2, 1, f);
 //		TeachCertiCommonMethod.createDataCellCategoryWithOutBorder(table, "", 2, 1, f);
