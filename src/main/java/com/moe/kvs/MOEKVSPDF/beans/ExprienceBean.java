@@ -13,8 +13,8 @@ public class ExprienceBean implements Serializable {
 	private String teacherId;
 	private String udiseSchCode;
 	private String schoolId;
-	private Date workStartDate;
-	private Date workEndDate;
+	private String workStartDate;
+	private String workEndDate;
 	private String positionType;
 	private Integer natureOfAppointment;
 	private String appointedForSubject;
@@ -77,16 +77,16 @@ public class ExprienceBean implements Serializable {
 		this.schoolId = schoolId;
 	}
 
-	public Date getWorkStartDate() {
+	public String getWorkStartDate() {
 		return workStartDate;
 	}
-	public void setWorkStartDate(Date workStartDate) {
+	public void setWorkStartDate(String workStartDate) {
 		this.workStartDate = workStartDate;
 	}
-	public Date getWorkEndDate() {
+	public String getWorkEndDate() {
 		return workEndDate;
 	}
-	public void setWorkEndDate(Date workEndDate) {
+	public void setWorkEndDate(String workEndDate) {
 		this.workEndDate = workEndDate;
 	}
 	public String getPositionType() {

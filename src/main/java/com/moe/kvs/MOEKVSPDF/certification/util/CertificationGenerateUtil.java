@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.xml.bind.DatatypeConverter;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -77,8 +78,237 @@ public class CertificationGenerateUtil {
 
 	DateFormat df = new SimpleDateFormat(pattern);
 	
+	public   byte[] downloadCertificate(Map<String,Map<String,Object>> dataObj,List<ExprienceBean> expObj ,MiscelaneousBean miscelaneousBean,Integer reportType)
+			throws IOException, java.io.IOException, ParseException {
+//=======
+//	public ResponseEntity<?> downloadCertificate(Map<String,Map<String,Object>> dataObj,List<ExprienceBean> expObj ,MiscelaneousBean miscelaneousBean)
+//			throws IOException, java.io.IOException, ParseException {
+//>>>>>>> 9a857a76cd4d7cc76454abf551c2cfec6e038fde
+		
+		PdfFont font = PdfFontFactory.createFont(FontConstants.TIMES_ROMAN);
+	
 
-	public ResponseEntity<?> downloadCertificate(Map<String,Map<String,Object>> dataObj,List<ExprienceBean> expObj ,MiscelaneousBean miscelaneousBean,Integer reportType)
+		class HeadertFooterHandler implements IEventHandler {
+			protected String info;
+
+			public void setInfo(String info) {
+				this.info = info;
+			}
+
+			public String getInfo() {
+				return info;
+			}
+
+			@SuppressWarnings("resource")
+			@Override
+			public void handleEvent(Event event) {
+				PdfDocumentEvent docEvent = (PdfDocumentEvent) event;
+
+				SimpleDateFormat formatter = new SimpleDateFormat("dd MMMM yyyy hh:mm:ss a");
+				PdfPage page = docEvent.getPage();
+				Paragraph p = new Paragraph().setFont(font);
+				Rectangle pageSize = page.getPageSize();
+				PdfDocument pdfDoc = ((PdfDocumentEvent) event).getDocument();
+				PdfCanvas pdfCanvas = new PdfCanvas(page.newContentStreamBefore(), page.getResources(), pdfDoc);
+				String formattedDate = formatter.format(new Date());
+				
+			        PdfCanvas aboveCanvas = new PdfCanvas(page.newContentStreamAfter(),
+			                page.getResources(), pdfDoc);
+			    	ImageData headerLogImagePath = null;
+					Image logoInage = null;
+			        Rectangle area = page.getPageSize();
+			    	String filePath1 ="";
+					try {
+						filePath1 = ResourceUtils.getFile("classpath:kvs-logo.png").getPath();
+						headerLogImagePath = ImageDataFactory.create(filePath1);
+					} catch (MalformedURLException | FileNotFoundException e2) {
+						// TODO Auto-generated catch block
+						e2.printStackTrace();
+					}
+			    
+					logoInage = new Image(headerLogImagePath);
+					logoInage.setWidth(270);
+					logoInage.setFixedPosition(155, 772);
+					
+			        new Canvas(aboveCanvas, pdfDoc, area)
+			                .add(logoInage).setFixedPosition(200, 200, 300);
+
+				new Canvas(pdfCanvas, pdfDoc, pageSize).setFont(font).setFontSize(11)
+
+						.showTextAligned("Page " + Integer.toString(pdfDoc.getPageNumber(page)),
+								pageSize.getWidth() / 2, 10, TextAlignment.CENTER, VerticalAlignment.MIDDLE, 0)
+						
+						.showTextAligned("Generated Date " + formattedDate, pageSize.getWidth() / 2+95, 10,
+								TextAlignment.LEFT, VerticalAlignment.MIDDLE, 0)
+
+
+						.showTextAligned(info, pageSize.getWidth() - 60, 30, TextAlignment.CENTER,
+								VerticalAlignment.MIDDLE, 0);
+				
+//				ImageData imageData;
+//				Image image = null;
+//				try {
+//					String filePath = ResourceUtils.getFile("classpath:water-marknew.jpg").getPath();
+//					imageData = ImageDataFactory.create(filePath);
+//					image = new Image(imageData);
+//				} catch (MalformedURLException |FileNotFoundException e1) {
+//					e1.printStackTrace();
+//				}
+//				PdfExtGState gstate = new PdfExtGState();
+//				gstate.setFillOpacity(.2f);
+//				PdfCanvas canvas = new PdfCanvas(page);
+//				canvas.saveState();
+//				canvas.setExtGState(gstate);
+//				try (Canvas canvas2 = new Canvas(canvas, pdfDoc, pageSize)) {
+//					//canvas2.add(image);
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//				canvas.restoreState();
+
+			}
+
+		}
+
+		HeadertFooterHandler handler = new HeadertFooterHandler();
+
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		PdfWriter write = new PdfWriter(byteArrayOutputStream);
+		write.setSmartMode(true);
+
+		PdfDocument pdfDoc = new PdfDocument(write);
+		pdfDoc.addEventHandler(PdfDocumentEvent.START_PAGE, handler);
+		Document doc = new Document(pdfDoc ,PageSize.A4);
+		doc.setMargins(80, 20, 40, 20);
+		//doc.setMa
+
+		handler.setInfo("");
+	
+		float[] columnWidMainTab = { 1 };
+		Table mainTable = new Table(UnitValue.createPercentArray(columnWidMainTab));
+		mainTable.setWidth(UnitValue.createPercentValue(100));
+		
+		Table techBasicProfile = fetchBasicProfile(doc, font,dataObj);
+		mainTable.addCell(techBasicProfile);
+		Table techGeneralInformation = fetchPersonalInformation(doc, font,dataObj);
+		mainTable.addCell(techGeneralInformation);
+
+		Table techSpousDetails = fetchTechSpousDetails(doc, font,dataObj);
+		mainTable.addCell(techSpousDetails);
+		
+
+		Table techWorkExperience = fetchTeachWorkExperience(doc, font,expObj);
+		mainTable.addCell(techWorkExperience);
+
+		Table teachMiscellaneous  = fetchTeachMiscellaneous(doc ,font,miscelaneousBean ,dataObj);
+		mainTable.addCell(teachMiscellaneous);
+	//	addLogo(doc);
+
+		doc.add(mainTable);
+		if(reportType == 1) {
+			setDegignationForSchool(doc ,font ,dataObj);
+		}else {
+			setDegignationForEmployee(doc, font, dataObj);
+		}
+		doc.close();
+		
+		
+		byteArrayOutputStream.close();
+		byte[] bytes = byteArrayOutputStream.toByteArray();
+		HttpHeaders headers = new HttpHeaders();
+		
+		File teacherFolder = new File(UPLOADED_FOLDER + File.separator + dataObj.get("teacherProfile").get("teacherId"));
+//		UPLOADED_FOLDER
+		if (!teacherFolder.exists()) {
+			teacherFolder.mkdirs();
+		}
+		
+		Path path = Paths.get(teacherFolder + File.separator + "profile_verified_by_teacher" + ".pdf");
+		Files.write(path, bytes);
+		
+        String base64Encoded = DatatypeConverter.printBase64Binary(bytes);
+        
+        HttpHeaders headers1 = new HttpHeaders();
+        headers1.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        MultiValueMap<String, String> map1 = new LinkedMultiValueMap<String, String>();
+        map1.add("file", base64Encoded);
+        map1.add("procesoId", "11");
+        map1.add("fuenteId", "11");
+        HttpEntity<MultiValueMap<String, String>> requestEntity
+                = new HttpEntity<MultiValueMap<String, String>>(map1, headers1);
+        RestTemplate rest=new RestTemplate();
+        
+//        System.out.println("requestJson-->"+base64Encoded);
+        String jsonInString =null;
+        try {
+        	MailBean obj=new MailBean();
+        	
+        	obj.setPdfbase64Encoded(base64Encoded);
+        	obj.setApplicationName("KVS Teacher");
+        	obj.setApplicationId("1");
+        	obj.setAttachmentYn(1);
+        	obj.setAttachmentPath("xyz");
+        	obj.setEmailTo(String.valueOf(dataObj.get("teacherProfile").get("teacherEmail")));
+//        	obj.setMobile("9162284786");
+        	obj.setSignature("Dear "+String.valueOf(dataObj.get("teacherProfile").get("teacherName")).split(" ")[0]);
+        	if(reportType==1) {
+        		obj.setReportType(1);
+        		//school
+        	obj.setContent("We are pleased to inform you that your profile has been reviewed and verified by KV/HQ/RO/ZIET. We kindly request you to review your final profile, which is attached for your reference.\r\n"
+        			+ "If You found any discrepancy in the data then Kindly contact to KV School immediately "
+        			+ "\r\n"
+        			+ "Please do not reply to this email as this is a system-generated email.");
+        	}else if(reportType==2) {
+        		obj.setReportType(2);
+        		obj.setContent("Thank you for submitting your profile for review and verification to KV/HQ/RO/ZIET. A copy of profile is attached for your reference.\r\n"
+        			+ "Please note that your profile is currently undergoing verification and may require amendments, if necessary, by your controlling officer. After the verification process is complete, you will receive further communication regarding your profile.\r\n"
+        			+ "Please do not reply to this email as this is a system-generated email.");	
+        	}
+        	
+        	obj.setClosing("KVS Team");
+        	obj.setEmailTemplateId("MSG-5836");
+        	obj.setEmailCc("nicsupport-edu@gov.in");
+        	ObjectMapper mapper = new ObjectMapper();
+        	 jsonInString = mapper.writeValueAsString(obj);
+//        	Staff obj = new Staff();
+        	
+//        String requestJson="{ \"pdfbase64Encoded\":"+base64Encoded+", \"applicationName\":\"Kvs Teacher\",\"attachmentYn\":\"1\" ,\"attachmentPath\":\"XYZ\",\"applicationId\":\"1\", \"emailTemplateId\": \"MSG-5836\", \"emailTo\": \"shamim.ahmad586@gmail.com\", \"emailCc\": \"shamim.ahmad586@gmail.com\", \"subject\": \"Teacher Module Credential \", \"signature\": \"Dear Shamim \", \"content\": \"Test \", \"closing\":\"Test \" }";
+//        
+//        
+//        System.out.println(requestJson);
+        }catch(Exception ex) {
+        	ex.printStackTrace();
+        }
+//        System.out.println("jsonInString---->"+jsonInString);
+        
+//        System.out.println("requestJson---->"+requestJson);
+        
+        HttpEntity<String> request = new HttpEntity<String>(jsonInString,headers);
+//    	String url = "http://10.25.26.251:8686/api/sendMessage";
+        
+        try {
+//        String url = "http://10.247.141.227:8080/ME-RAD-MESSAGE/api/sendMessage";
+//        rest.exchange(url, HttpMethod.POST, request,Map.class,1);	
+        }catch(Exception ex) {
+        	ex.printStackTrace();
+        }
+    //    rest.postForObject("http://localhost:8686/api/upload", requestEntity, String.class);
+//        
+//        f1.close();
+//        HttpHeaders header = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + checkNull(dataObj.get("teacherProfile").get("teacherName")) + ".pdf");
+        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.add("Pragma", "no-cache");
+        headers.add("Expires", "0");
+        headers.add("Content-Disposition", "attachment; filename=Teacher Certificate.pdf");
+	 
+//	return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_PDF).body(bytes);
+		
+		return bytes;
+	}
+	
+
+	public ResponseEntity<?> downloadCertificateWithMail(Map<String,Map<String,Object>> dataObj,List<ExprienceBean> expObj ,MiscelaneousBean miscelaneousBean,Integer reportType)
 			throws IOException, java.io.IOException, ParseException {
 //=======
 //	public ResponseEntity<?> downloadCertificate(Map<String,Map<String,Object>> dataObj,List<ExprienceBean> expObj ,MiscelaneousBean miscelaneousBean)
@@ -296,10 +526,10 @@ public class CertificationGenerateUtil {
 //        
 //        f1.close();
 		
-		headers.add("Content-Disposition", "inline; filename=Teacher Certificate.pdf");
-		return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_PDF).body(bytes);
+//		headers.add("Content-Disposition", "inline; filename=Teacher Certificate.pdf");
+//		return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_PDF).body(bytes);
 		
-//		return null;
+		return null;
 	}
 	
 	void setDegignationForSchool(Document doc ,PdfFont f, Map<String,Map<String,Object>> data){
@@ -487,8 +717,8 @@ public class CertificationGenerateUtil {
 		for(ExprienceBean obj : expObj) {
 			
 			TeachCertiCommonMethod.createDataCellLeft(table,  obj.getUdiseSchoolName() != null ? obj.getUdiseSchoolName():" (" + obj.getUdiseSchCode() + ")" , 1, 1, f);
-			TeachCertiCommonMethod.createDataCellLeft(table,  obj.getWorkStartDate() !=null? simpleDateFormat.format(obj.getWorkStartDate()): "" , 1, 1, f);
-			TeachCertiCommonMethod.createDataCellLeft(table,  obj.getWorkEndDate() !=null ? simpleDateFormat.format(obj.getWorkEndDate()) : "", 1, 1, f);
+			TeachCertiCommonMethod.createDataCellLeft(table,  obj.getWorkStartDate() !=null?obj.getWorkStartDate(): "" , 1, 1, f);
+			TeachCertiCommonMethod.createDataCellLeft(table,  obj.getWorkEndDate() !=null ? obj.getWorkEndDate() : "", 1, 1, f);
 			TeachCertiCommonMethod.createDataCellLeft(table,  obj.getPositionType() != null ? obj.getPositionType() :"" , 1, 1, f);
 			TeachCertiCommonMethod.createDataCellLeft(table,  obj.getAppointedForSubject() != null ? obj.getAppointedForSubject() : "" , 1, 1, f);
 			TeachCertiCommonMethod.createDataCellLeft(table,  obj.getGroundForTransfer() != null && !obj.getGroundForTransfer().equals("null") ? obj.getGroundForTransfer() : ""  , 1, 1, f);
