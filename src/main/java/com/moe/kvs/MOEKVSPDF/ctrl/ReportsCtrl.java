@@ -266,13 +266,25 @@ public class ReportsCtrl {
 //			Query="select count(*) as total_no_onboarded_teacher, count(*)  filter(where verify_flag='TA') as teacher_approve , count(*)  filter(where verify_flag='SA') as school_approve from public.teacher_profile tp  where kv_code !='9999' ";
 		Query="select count(*) as total_no_onboarded_teacher,\r\n"
 				+ "count(*) filter ( where verify_flag='TA') as teacher_approve ,\r\n"
-				+ "count(*) filter( where verify_flag = 'SA' ) as school_aprove,\r\n"
+				+ "count(*) filter( where verify_flag = 'SA' or verify_flag = 'TTD') as school_aprove,\r\n"
 				+ "count(*) filter ( where  ttp.choice_kv1_station_code is not null) as  no_of_choice_stn,\r\n"
 				+ "count(*) filter ( where ttp.transfer_status= '1') as transfer_apply\r\n"
 				+ "from public.teacher_transfer_profile ttp , public.teacher_profile tp \r\n"
 				+ "where ttp.teacher_id = tp.teacher_id and tp.kv_code <> '9999'";
 		
+	String	Query2="select * from (\r\n"
+				+ "select count(*) filter(where  ttp.trans_emp_is_declaration ='1') as decalaration_done,\r\n"
+				+ "count(*) filter(where  ttp.choice_kv1_station_code is not null   ) as station_coice\r\n"
+				+ "from public.teacher_transfer_profile ttp \r\n"
+				+ ") aa, (\r\n"
+				+ "select count(*) filter(where ttd.dc_save_yn ='1') as dc_save,\r\n"
+				+ "	   count(*) filter(where ttd.tc_save_yn ='1') as tc_save\r\n"
+				+ "from transfer.teacher_transfer_details ttd where ttd.kv_code <> '9999'\r\n"
+				+ ") bb"
+		;
 		}
+		
+		
 
 		System.out.println("Query--->" + Query);
 
